@@ -1,0 +1,288 @@
+#include<iostream>
+#include<string>
+using namespace std;
+#define MAX 1000//定义MAX 1000是为了方便以后维护，define不用加；(不用加分号)
+
+void shouMeun() {
+	cout << "************************* " << endl;
+	cout << "****  1、添加联系人  ****" << endl;
+	cout << "****  2、显示联系人  ****" << endl;
+	cout << "****  3、册除联系人  ****" << endl;
+	cout << "****  4、查找联系人  ****" << endl;
+	cout << "****  5、修改联系人  ****" << endl;
+	cout << "****  6、清空联系人  ****" << endl;
+	cout << "****  0、退出通讯录  ****" << endl;
+	cout << "************************* " << endl;
+}
+
+struct person   //联系人结构体
+{  
+	string mname;
+	int mage;
+	string madd;
+	string mphone;//电话号码是一行字符串
+	int msex;//性别输入1代表男性，2代表女性，借此避免用string型时输入奇怪的性别
+};
+
+struct addressbooks  //通讯录结构体
+{  
+	struct person personArray[MAX];//保存的联系人数组
+	int msize;//记录通讯录联系人个数
+};
+
+//添加联系人
+void addPerson(addressbooks* abs) {
+	//判断通讯录是否满人，如果满了就不再添加
+	if (abs->msize == MAX)
+	{
+		cout << "通讯录已满，添加失败。" << endl;
+		return;
+	}
+	else
+	{
+		//添加具体联系人
+		
+		//姓名
+		string name;
+		cout << "请输入姓名" << endl;
+		cin >> name;
+		abs->personArray[abs->msize].mname = name;
+
+		//性别
+		cout << "请输入性别" << endl;
+		cout << "1----男性  2----女性" << endl;
+		int sex = 0;
+		while (1)
+		{
+			cin >> sex;
+			//输入1或2，可以退出循环;如果输入其他数字，则重复循环直到输入1或2为止
+			if (sex == 1 || sex == 2) 
+			{
+				abs->personArray[abs->msize].msex = sex;
+				break;
+			}
+			cout << "输入有误，请重新输入！" << endl;
+		}
+
+		//年龄
+		cout << "请输入年龄" << endl;
+		int age = 0;
+		while(1)
+		{
+			cin >> age;
+			if (age > 0) {
+				abs->personArray[abs->msize].mage = age;
+				break;
+			}
+			cout << "输入有误，请重新输入!" << endl;
+		}
+
+		//电话号码
+		cout << "请输入电话号码" << endl;
+		string phone;
+		cin >> phone;
+		abs->personArray[abs->msize].mphone = phone;
+
+		//地址
+		cout << "请输入地址" << endl;
+		string add;
+		cin >> add;
+		abs->personArray[abs->msize].madd = add;
+
+		//更新人数
+		abs->msize++;
+
+		cout << "添加成功！" << endl;
+
+		system("pause");//请按任意键继续
+
+		system("cls");//实现清屏操作
+	}
+}
+
+void showPerson(addressbooks* abs) {
+	if (abs->msize == 0) {
+		cout << "记录为空！" << endl;
+	}
+	else {
+		for (int i = 0; i < abs->msize; i++) {
+			cout << "姓名：" << abs->personArray[i].mname << "\t";
+			cout << "年龄：" << abs->personArray[i].mage << "\t";
+			cout << "性别：" << (abs->personArray[i].msex == 1 ? "男" : "女") << "\t";
+			cout << "联系电话：" << abs->personArray[i].mphone << "\t";
+			cout << "地址：" << abs->personArray[i].madd << endl;
+		}
+	}
+	system("pause");
+	system("cls");
+}
+//封装检测联系人是否存在的函数(根据姓名)，之所以单独封装时为了在写之后的查找、修改等功能也能方便使用
+//如果存在，返回地址；不存在，返回-1
+int isExist(addressbooks* abs,string name) //参数1代表传入的通讯录;参数2代表传入的对比人名
+{
+	for (int i = 0; i < abs->msize; i++) 
+	{
+		if (abs->personArray[i].mname == name) 
+		{
+			return i;//找到联系人则返回其下标
+		}
+	}
+	return -1;
+}
+//封装删除联系人的函数
+void deletePerson(addressbooks* abs) {
+	cout << "请输入您要删除的联系人" << endl;
+	string name;
+	cin >> name;
+	//利用ret变量接受返回值
+	int ret = isExist(abs, name);
+	if (ret != -1)
+	{
+		for (int i = ret; i < abs->msize; i++)
+		{
+			abs->personArray[i] = abs->personArray[i + 1];//数据前移操作，后面未被利用的数组位置会被自动初始化
+		}
+		abs->msize--;//更新通讯录中人员个数
+		cout << "删除成功" << endl;
+	}
+	else
+	{
+		cout << "查无此人！" << endl;
+	}
+	system("pause");
+	system("cls");
+}
+//封装查找联系人函数
+void findPerson(addressbooks* abs) 
+{
+	cout << "请输入想要查找的联系人姓名" << endl;
+	string name;
+	cin >> name;
+	//判断姓名是否存在
+	int ret = isExist(abs, name);
+	if (ret != -1) {
+		cout << "姓名：" << abs->personArray[ret].mname << "\t";
+		cout << "年龄：" << abs->personArray[ret].mage << "\t";
+		cout << "性别：" << (abs->personArray[ret].msex == 1 ? "男" : "女") << "\t";
+		cout << "联系电话：" << abs->personArray[ret].mphone << "\t";
+		cout << "地址：" << abs->personArray[ret].madd << endl;
+	}
+	else {
+		cout << "查无此人" << endl;
+	}
+	system("pause");
+	system("cls");
+}
+//修改联系人
+void modifyPerson(addressbooks* abs) {
+	cout << "请输入想要修改的联系人姓名" << endl;
+	string name;
+	cin >> name;
+	int ret = isExist(abs,name);
+	if (ret != -1)
+	{
+		//姓名
+		cout << "请输入姓名" << endl;
+		string name;
+		cin >> name;
+		abs->personArray[ret].mname = name;
+		//性别
+		cout << "请输入性别" << endl;
+		cout << "1----男性  2----女性" << endl;
+		int sex = 0;
+		cin >> sex;
+		while (1) {
+			if (sex == 1 || sex == 2) {
+				abs->personArray[ret].msex = sex;
+				break;
+			}
+			else {
+				cout << "输入有误，请重新输入" << endl;
+			}
+		}
+		//年龄
+		cout << "请输入年龄" << endl;
+		int age;
+		cin >> age;
+		abs->personArray[ret].mage = age;
+		//电话号码的修改
+		cout << "请输入电话号码" << endl;
+		string phone;
+		cin >> phone;
+		abs->personArray[ret].mphone = phone;
+		//住址的修改
+		cout << "请输入住址" << endl;
+		string add;
+		cin >> add;
+		abs->personArray[ret].madd = add;
+	}
+	else{
+		cout << "查无此人!" << endl;
+	}
+	cout << "修改成功！" << endl;
+	system("pause");
+	system("cls");
+}
+//清空联系人
+void cleanPerson(addressbooks* abs) {
+	abs->msize = 0;//逻辑层面上的清空
+	cout << "清除成功！" << endl;
+	system("pause");
+	system("cls");
+}
+
+int main() {
+	addressbooks abs;//创建通讯录结构体变量
+	abs.msize = 0;//初始化通讯录人员个数为0
+	int select = 0;//用户的选择
+
+	while (1)//利用循环来实现返回菜单的作用  
+		     //注意：此时不是死循环，因为有打破循环的方式
+	{
+		//菜单的调用
+		shouMeun();
+
+		cin >> select;
+
+		switch (select)    //该步不仅可以用switch语句，还可以用if else语句来实现
+		{
+		case 1:            //1、添加联系人
+			addPerson(&abs);//值传递不能改变abs实参，必须用地址传递来用形参修饰实参
+			break;
+		case 2:            //2、显示联系人
+			showPerson(&abs);
+			break;
+		case 3:            //3、册除联系人
+		/*{   cout << "请输入联系人姓名" << endl;
+		string name;
+		cin >> name;
+		if (isExist(&abs, name) == -1) {
+			cout << "查无此人！" << endl;
+			}
+		else {
+			cout << "找到此人!" << endl;
+		}
+		}（作为检测功能的代码被注释掉）*/
+			deletePerson(&abs);
+			break;
+		case 4:    //4、查找联系人
+			findPerson(&abs);
+			break;
+		case 5:            //5、修改联系人
+			modifyPerson(&abs);
+			break;
+		case 6:            //6、清空联系人
+			cleanPerson(&abs);
+			break;
+		case 0:            //0、退出通讯录（打破循环）
+			cout << "欢迎您下次继续使用本系统！" << endl;
+			system("pause");
+			return 0;
+			break;
+		default:
+			break;
+		}
+	}
+	system("pause");
+	return 0;
+}
